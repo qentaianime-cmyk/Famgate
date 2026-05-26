@@ -1,6 +1,6 @@
 'use client'
 import { motion } from 'framer-motion'
-import { ArrowRight, Lightning, QrCode, Bell, Webhook } from '@phosphor-icons/react'
+import { ArrowRight, Lightning, QrCode, Bell, ArrowsSplit } from '@phosphor-icons/react'
 import { StepShell } from './StepShell'
 import { useAuthStore } from '@/store/authStore'
 

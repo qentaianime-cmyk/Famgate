@@ -63,7 +63,7 @@ export function AvatarUpload({ value, onChange, size = 88 }: AvatarUploadProps) 
           style={{ background: '#1A1A1A', border: '2px solid #222' }}
         >
           {value ? (
-            // eslint-disable-next-line @next/next/no-img-element
+            // eslint-disable-next-line @next/next/no-img-element. justv new commmitment
             <img
               src={value}
               alt="Avatar preview"

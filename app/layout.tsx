@@ -1,35 +1,17 @@
 import type { Metadata } from 'next'
-import { Outfit } from 'next/font/google'
+import { GeistSans } from 'geist/font/sans'
+import { GeistMono } from 'geist/font/mono'
 import './globals.css'
-
-const outfit = Outfit({
-  subsets: ['latin'],
-  weight: ['300', '400', '500', '600', '700', '800'],
-  variable: '--font-outfit',
-  display: 'swap',
-})
 
 export const metadata: Metadata = {
   title: 'FamSaaS — Payment Gateway',
-  description: 'Accept UPI payments through FamPay.',
+  description: 'Accept UPI payments through FamPay. Real-time confirmation.',
 }
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={outfit.variable}>
-      <body
-        className="font-outfit"
-        style={{
-          backgroundColor: '#0A0A0A',
-          color: '#ffffff',
-          minHeight: '100vh',
-          margin: 0,
-        }}
-      >
+    <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable}`}>
+      <body>
         {children}
       </body>
     </html>

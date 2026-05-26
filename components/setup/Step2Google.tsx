@@ -1,247 +1,203 @@
 'use client'
-import { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { ArrowRight, ArrowLeft, GoogleLogo, Lock, Shield, Key } from '@phosphor-icons/react'
+import { useState, useEffect, useRef } from 'react'
+import { gsap } from 'gsap'
+import { ArrowRight, ArrowLeft, GoogleLogo, Lock, ShieldCheck, Key } from '@phosphor-icons/react'
 import { StepShell } from './StepShell'
 
 interface StepProps { onNext: () => void; onBack: () => void; direction: number }
 
-const INSTRUCTIONS = [
+const STEPS = [
   {
-    step: 1,
-    icon: GoogleLogo,
-    color: '#4285F4',
-    title: 'Open Google Account',
-    desc: 'Go to myaccount.google.com or click your profile photo → "Manage your Google Account"',
-    tag: 'myaccount.google.com',
+    icon: GoogleLogo, color: '#4285F4',
+    num: '01', title: 'Open Google Account',
+    body: 'Go to myaccount.google.com — or tap your profile photo anywhere in Google and choose "Manage your Google Account".',
+    chip: 'myaccount.google.com',
   },
   {
-    step: 2,
-    icon: Shield,
-    color: '#34A853',
-    title: 'Click "Security" tab',
-    desc: 'In the top navigation bar, find and click the "Security" tab.',
-    tag: 'Security tab',
+    icon: ShieldCheck, color: '#10B981',
+    num: '02', title: 'Go to Security',
+    body: 'In the top navigation, tap the "Security" tab. On mobile, it may be inside a side menu.',
+    chip: 'Security tab',
   },
   {
-    step: 3,
-    icon: Lock,
-    color: '#FBBC05',
-    title: 'Enable 2-Step Verification',
-    desc: 'Scroll to "How you sign in to Google". Click "2-Step Verification" and turn it ON. This is required for App Passwords.',
-    tag: '2-Step Verification → ON',
+    icon: Lock, color: 'var(--amber)',
+    num: '03', title: 'Enable 2-Step Verification',
+    body: 'Under "How you sign in to Google", find 2-Step Verification. Turn it ON. This is required before App Passwords appear.',
+    chip: '2-Step Verification → ON',
   },
   {
-    step: 4,
-    icon: Key,
-    color: '#F5A623',
-    title: 'Generate App Password',
-    desc: 'After enabling 2FA, search for "App Passwords" in the search bar. Select app: "Mail", device: "Other" → type "FamSaaS" → click Generate.',
-    tag: 'App Passwords → Generate',
+    icon: Key, color: '#a78bfa',
+    num: '04', title: 'Generate App Password',
+    body: 'After 2FA is on, search "App Passwords" in the Google search bar. Name it "FamSaaS" and tap Generate. Copy the 16-character password.',
+    chip: 'App Passwords → Generate → Copy',
   },
 ]
 
 export function Step2Google({ onNext, onBack, direction }: StepProps) {
-  const [activeStep, setActiveStep] = useState(0)
-  const current = INSTRUCTIONS[activeStep]
-  const Icon = current.icon
+  const [active, setActive] = useState(0)
+  const cardRef = useRef<HTMLDivElement>(null)
+
+  const animateCard = () => {
+    if (cardRef.current) {
+      gsap.fromTo(cardRef.current,
+        { y: 12, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.35, ease: 'power3.out' }
+      )
+    }
+  }
+
+  useEffect(() => { animateCard() }, [active])
+
+  const curr = STEPS[active]
+  const Icon = curr.icon
 
   return (
-    <StepShell step={2} direction={direction}>
-      <div className="flex flex-col h-full px-6 pb-10 pt-6 max-w-lg mx-auto w-full">
+    <StepShell step={2}>
+      <div style={{
+        height: '100%', display: 'flex', flexDirection: 'column',
+        padding: '20px 24px 28px',
+        maxWidth: 480, margin: '0 auto', width: '100%',
+      }}>
+        {/* Header */}
+        <div style={{ marginBottom: 20 }}>
+          <div style={{ fontSize: 11, color: 'var(--amber)', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 6 }}>
+            STEP 2 OF 4
+          </div>
+          <h1 style={{ fontSize: 22, fontWeight: 700, color: 'var(--text-1)', letterSpacing: '-0.025em' }}>
+            Get your App Password
+          </h1>
+          <p style={{ fontSize: 13, color: 'var(--text-2)', marginTop: 4 }}>
+            4 quick steps inside Google Account
+          </p>
+        </div>
 
-        <motion.h1
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          style={{ fontSize: 26, fontWeight: 800, color: '#fff', marginBottom: 6 }}
+        {/* Card — fixed height so no layout shift */}
+        <div
+          ref={cardRef}
+          style={{
+            flex: 1,
+            background: 'var(--bg-1)',
+            border: '1px solid var(--line)',
+            borderRadius: 'var(--radius-xl)',
+            padding: '22px 20px',
+            display: 'flex', flexDirection: 'column',
+          }}
         >
-          Get your App Password
-        </motion.h1>
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.1 }}
-          style={{ color: '#555', fontSize: 14, marginBottom: 28 }}
-        >
-          Follow these 4 steps inside your Google Account
-        </motion.p>
-
-        {/* Instruction card */}
-        <div style={{ flex: 1 }}>
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={activeStep}
-              initial={{ opacity: 0, y: 20, scale: 0.97 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -20, scale: 0.97 }}
-              transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-              style={{
-                background: '#111',
-                border: '1px solid #1e1e1e',
-                borderRadius: 20,
-                padding: 24,
-                marginBottom: 20,
-              }}
-            >
-              {/* Icon */}
-              <div style={{
-                width: 52,
-                height: 52,
-                borderRadius: 14,
-                background: `${current.color}15`,
-                border: `1px solid ${current.color}30`,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                marginBottom: 20,
-              }}>
-                <Icon size={26} color={current.color} weight="fill" />
-              </div>
-
-              {/* Step badge */}
-              <div style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 6,
-                background: `${current.color}15`,
-                border: `1px solid ${current.color}25`,
-                borderRadius: 20,
-                padding: '3px 10px',
-                marginBottom: 12,
-              }}>
-                <span style={{ fontSize: 11, color: current.color, fontWeight: 700 }}>
-                  STEP {current.step} OF 4
-                </span>
-              </div>
-
-              <h2 style={{ fontSize: 20, fontWeight: 700, color: '#fff', marginBottom: 10 }}>
-                {current.title}
-              </h2>
-              <p style={{ fontSize: 14, color: '#777', lineHeight: 1.7, marginBottom: 16 }}>
-                {current.desc}
-              </p>
-
-              {/* Tag pill */}
-              <div style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 6,
-                background: '#1a1a1a',
-                border: '1px solid #2a2a2a',
-                borderRadius: 8,
-                padding: '6px 12px',
-              }}>
-                <div style={{ width: 6, height: 6, borderRadius: '50%', background: current.color }} />
-                <span style={{ fontSize: 12, color: '#aaa', fontFamily: 'monospace' }}>
-                  {current.tag}
-                </span>
-              </div>
-            </motion.div>
-          </AnimatePresence>
-
-          {/* Dot navigation */}
-          <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginBottom: 28 }}>
-            {INSTRUCTIONS.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => setActiveStep(i)}
-                style={{
-                  width: i === activeStep ? 24 : 8,
-                  height: 8,
-                  borderRadius: 4,
-                  background: i === activeStep ? '#F5A623' : i < activeStep ? '#8B5E1A' : '#222',
-                  border: 'none',
-                  cursor: 'pointer',
-                  padding: 0,
-                  transition: 'all 0.3s ease',
-                }}
-              />
-            ))}
+          {/* Icon + num */}
+          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 18 }}>
+            <div style={{
+              width: 46, height: 46, borderRadius: 12, flexShrink: 0,
+              background: `${curr.color}18`,
+              border: `1px solid ${curr.color}30`,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+              <Icon size={22} color={curr.color} weight="fill" />
+            </div>
+            <span style={{
+              fontSize: 42, fontWeight: 800, color: 'var(--line-2)',
+              lineHeight: 1, letterSpacing: '-0.04em',
+              fontVariantNumeric: 'tabular-nums',
+            }}>
+              {curr.num}
+            </span>
           </div>
 
-          {/* Prev / Next within the card */}
-          <div style={{ display: 'flex', gap: 10, marginBottom: 16 }}>
-            {activeStep > 0 && (
-              <button
-                onClick={() => setActiveStep(s => s - 1)}
-                style={{
-                  flex: 1,
-                  padding: '12px',
-                  background: 'transparent',
-                  border: '1px solid #222',
-                  borderRadius: 12,
-                  color: '#aaa',
-                  fontSize: 14,
-                  cursor: 'pointer',
-                  fontFamily: 'var(--font-outfit), sans-serif',
-                }}
-              >
-                ← Previous
-              </button>
-            )}
-            {activeStep < 3 ? (
-              <button
-                onClick={() => setActiveStep(s => s + 1)}
-                style={{
-                  flex: 1,
-                  padding: '12px',
-                  background: '#1a1a1a',
-                  border: '1px solid #2a2a2a',
-                  borderRadius: 12,
-                  color: '#fff',
-                  fontSize: 14,
-                  cursor: 'pointer',
-                  fontFamily: 'var(--font-outfit), sans-serif',
-                }}
-              >
-                Next step →
-              </button>
-            ) : (
-              <button
-                onClick={onNext}
-                style={{
-                  flex: 1,
-                  padding: '12px',
-                  background: '#F5A623',
-                  border: 'none',
-                  borderRadius: 12,
-                  color: '#000',
-                  fontSize: 14,
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: 6,
-                  fontFamily: 'var(--font-outfit), sans-serif',
-                }}
-              >
-                I have my password <ArrowRight size={16} />
-              </button>
-            )}
+          <h2 style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-1)', letterSpacing: '-0.02em', marginBottom: 10 }}>
+            {curr.title}
+          </h2>
+          <p style={{ fontSize: 13, color: 'var(--text-2)', lineHeight: 1.7, flex: 1 }}>
+            {curr.body}
+          </p>
+
+          {/* Chip */}
+          <div style={{
+            marginTop: 16,
+            display: 'inline-flex', alignItems: 'center', gap: 7,
+            padding: '7px 12px',
+            background: 'var(--bg-2)',
+            border: '1px solid var(--line-2)',
+            borderRadius: 8,
+            alignSelf: 'flex-start',
+          }}>
+            <div style={{ width: 5, height: 5, borderRadius: '50%', background: curr.color }} />
+            <span style={{ fontSize: 12, color: 'var(--text-2)', fontFamily: 'var(--font-geist-mono)' }}>
+              {curr.chip}
+            </span>
           </div>
         </div>
 
-        {/* Back */}
-        <button
-          onClick={onBack}
-          style={{
-            background: 'transparent',
-            border: 'none',
-            color: '#444',
-            fontSize: 13,
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 6,
-            fontFamily: 'var(--font-outfit), sans-serif',
-            padding: 0,
-          }}
-        >
-          <ArrowLeft size={14} /> Back
-        </button>
+        {/* Dots */}
+        <div style={{ display: 'flex', justifyContent: 'center', gap: 6, margin: '16px 0' }}>
+          {STEPS.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setActive(i)}
+              style={{
+                width: i === active ? 20 : 6, height: 6,
+                borderRadius: 3, border: 'none', cursor: 'pointer', padding: 0,
+                background: i === active ? 'var(--amber)' : i < active ? 'var(--amber-mid)' : 'var(--line-2)',
+                transition: 'all 0.3s ease',
+              }}
+            />
+          ))}
+        </div>
 
+        {/* Buttons */}
+        <div style={{ display: 'flex', gap: 8 }}>
+          {active > 0 && (
+            <button
+              onClick={() => setActive(a => a - 1)}
+              style={{
+                flex: 1, padding: '13px',
+                background: 'transparent',
+                border: '1px solid var(--line)',
+                borderRadius: 'var(--radius-md)',
+                color: 'var(--text-2)', fontSize: 13,
+                cursor: 'pointer',
+              }}
+            >
+              ← Prev
+            </button>
+          )}
+          {active < 3 ? (
+            <button
+              onClick={() => setActive(a => a + 1)}
+              style={{
+                flex: 1, padding: '13px',
+                background: 'var(--bg-2)',
+                border: '1px solid var(--line-2)',
+                borderRadius: 'var(--radius-md)',
+                color: 'var(--text-1)', fontSize: 13,
+                cursor: 'pointer',
+              }}
+            >
+              Next →
+            </button>
+          ) : (
+            <button
+              onClick={onNext}
+              style={{
+                flex: 1, padding: '13px',
+                background: 'var(--amber)',
+                border: 'none',
+                borderRadius: 'var(--radius-md)',
+                color: '#000', fontSize: 13, fontWeight: 600,
+                cursor: 'pointer',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+              }}
+            >
+              I have it <ArrowRight size={14} weight="bold" />
+            </button>
+          )}
+        </div>
+
+        <button onClick={onBack} style={{
+          marginTop: 12, background: 'transparent', border: 'none',
+          color: 'var(--text-3)', fontSize: 12, cursor: 'pointer',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5,
+        }}>
+          <ArrowLeft size={12} /> Back
+        </button>
       </div>
     </StepShell>
   )

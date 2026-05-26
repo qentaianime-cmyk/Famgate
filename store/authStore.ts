@@ -51,7 +51,7 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: 'famsaas-auth',
-      partialize: (s)  => ({
+      partialize: (s) => ({
         token: s.token,
         merchantId: s.merchantId,
         displayName: s.displayName,

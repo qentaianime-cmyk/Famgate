@@ -37,18 +37,18 @@ export function Step4UPI({ onBack }: StepProps) {
         // Particles
         for (let i = 0; i < 12; i++) {
           const angle = (i / 12) * Math.PI * 2
-          gsap.fromTo(`.particle-${i}`,
-            { scale: 0, x: 0, y: 0, opacity: 1 },
-            {
-              scale: [0, 1, 0],
-              x: Math.cos(angle) * 60,
-              y: Math.sin(angle) * 60,
-              opacity: 0,
-              duration: 0.9,
-              delay: 0.3 + i * 0.04,
-              ease: 'power2.out',
-            }
-          )
+         gsap.fromTo(`.particle-${i}`,
+  { scale: 0, x: 0, y: 0, opacity: 1 },
+  {
+    keyframes: { scale: [0, 1, 0] }, // Move scale into a keyframes object
+    x: Math.cos(angle) * 60,
+    y: Math.sin(angle) * 60,
+    opacity: 0,
+    duration: 0.9,
+    delay: 0.3 + i * 0.04,
+    ease: 'power2.out',
+  }
+                     )
         }
       }, successRef)
       return () => ctx.revert()

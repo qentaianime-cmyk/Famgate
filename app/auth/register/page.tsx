@@ -201,15 +201,27 @@ export default function RegisterPage() {
                     {serverError}
                   </p>
                 )}
-
-                <div className="flex gap-3 mt-8">
-                  <Button variant="ghost" onClick={() => go(0)} className="flex-1">
-                    <ArrowLeft size={16} /> Back
-                  </Button>
-                  <Button onClick={handleSubmit} loading={loading} className="flex-2 flex-1">
-                    {avatarBase64 ? 'Create account' : 'Skip & create'} <ArrowRight size={16} />
-                  </Button>
-                </div>
+<div className="flex gap-3 mt-8">
+  <Button
+    type="button"
+    variant="ghost"
+    onClick={() => go(0)}
+    className="flex-1"
+  >
+    <ArrowLeft size={16} /> Back
+  </Button>
+  <Button
+    type="button"
+    loading={loading}
+    onClick={(e) => {
+      e.preventDefault()
+      handleSubmit()
+    }}
+    className="flex-1"
+  >
+    {avatarBase64 ? 'Create account' : 'Skip & create'} <ArrowRight size={16} />
+  </Button>
+</div>
               </motion.div>
             )}
           </AnimatePresence>

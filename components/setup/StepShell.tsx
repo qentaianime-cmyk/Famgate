@@ -1,155 +1,138 @@
 'use client'
-import { motion, AnimatePresence } from 'framer-motion'
+import { useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
+import { gsap } from 'gsap'
 import { X } from '@phosphor-icons/react'
-import { Logo } from '@/components/ui/Logo'
 
 interface StepShellProps {
-  step: number          // 1-4
-  totalSteps?: number
+  step: number
   children: React.ReactNode
-  direction?: number    // 1 = forward, -1 = back
 }
 
-const STEPS = ['Gateway', 'Google', 'Connect', 'UPI']
-
-export function StepShell({ step, totalSteps = 4, children, direction = 1 }: StepShellProps) {
+export function StepShell({ step, children }: StepShellProps) {
   const router = useRouter()
-  const progress = (step / totalSteps) * 100
+  const barRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (barRef.current) {
+      gsap.to(barRef.current, {
+        width: `${(step / 4) * 100}%`,
+        duration: 0.7,
+        ease: 'power3.out',
+      })
+    }
+  }, [step])
+
+  const LABELS = ['Gateway', 'Google', 'Connect', 'UPI']
 
   return (
-    <div
-      className="min-h-screen flex flex-col"
-      style={{ background: '#0A0A0A' }}
-    >
-      {/* Ambient glow — moves per step */}
-      <div
-        className="fixed pointer-events-none"
-        style={{
-          top: '-20%',
-          left: `${(step - 1) * 25}%`,
-          width: '50vw',
-          height: '50vw',
-          borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(245,166,35,0.07) 0%, transparent 70%)',
-          transition: 'left 0.8s cubic-bezier(0.16,1,0.3,1)',
-          zIndex: 0,
-        }}
-      />
+    <div style={{
+      position: 'fixed', inset: 0,
+      background: 'var(--bg)',
+      display: 'flex', flexDirection: 'column',
+      overflow: 'hidden',
+    }}>
+      {/* Ambient radial — moves per step */}
+      <div style={{
+        position: 'absolute',
+        width: '70vw', height: '70vw',
+        borderRadius: '50%',
+        background: 'radial-gradient(circle, rgba(245,158,11,0.055) 0%, transparent 65%)',
+        top: '-20%',
+        left: `${(step - 1) * 28 - 10}%`,
+        transition: 'left 1s cubic-bezier(0.16,1,0.3,1)',
+        pointerEvents: 'none',
+        zIndex: 0,
+      }} />
 
-      {/* Top bar */}
-      <div
-        className="relative z-10 flex items-center justify-between px-6 pt-6 pb-4"
-        style={{ borderBottom: '1px solid #1a1a1a' }}
-      >
-        <div className="flex items-center gap-2.5">
-          <Logo size={28} />
-          <span style={{ color: '#555', fontSize: 13, fontWeight: 500 }}>Setup</span>
-        </div>
+      {/* Dot grid texture */}
+      <div style={{
+        position: 'absolute', inset: 0,
+        backgroundImage: 'radial-gradient(circle, #222 1px, transparent 1px)',
+        backgroundSize: '28px 28px',
+        opacity: 0.35,
+        pointerEvents: 'none',
+        zIndex: 0,
+      }} />
 
+      {/* Header */}
+      <header style={{
+        position: 'relative', zIndex: 10,
+        display: 'flex', alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: '16px 20px 0',
+      }}>
         {/* Step pills */}
-        <div className="flex items-center gap-1.5">
-          {STEPS.map((label, i) => (
-            <div
-              key={label}
-              className="flex items-center gap-1"
-            >
-              <div
-                style={{
-                  width: i + 1 === step ? 24 : 6,
-                  height: 6,
-                  borderRadius: 3,
-                  background: i + 1 < step
-                    ? '#F5A623'
-                    : i + 1 === step
-                    ? '#F5A623'
-                    : '#222',
-                  transition: 'all 0.4s cubic-bezier(0.16,1,0.3,1)',
-                  opacity: i + 1 > step ? 0.4 : 1,
-                }}
-              />
-            </div>
-          ))}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          {LABELS.map((label, i) => {
+            const n = i + 1
+            const done = n < step
+            const active = n === step
+            return (
+              <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <div style={{
+                  display: 'flex', alignItems: 'center', gap: 5,
+                  padding: active ? '4px 10px' : '4px 8px',
+                  borderRadius: 20,
+                  background: active ? 'rgba(245,158,11,0.1)' : 'transparent',
+                  border: `1px solid ${active ? 'rgba(245,158,11,0.25)' : 'transparent'}`,
+                  transition: 'all 0.3s ease',
+                }}>
+                  <div style={{
+                    width: 6, height: 6, borderRadius: '50%',
+                    background: done ? 'var(--amber)' : active ? 'var(--amber)' : 'var(--line-2)',
+                    transition: 'background 0.3s ease',
+                    boxShadow: active ? '0 0 8px var(--amber)' : 'none',
+                  }} />
+                  {active && (
+                    <span style={{ fontSize: 11, color: 'var(--amber)', fontWeight: 600, letterSpacing: '0.04em' }}>
+                      {label}
+                    </span>
+                  )}
+                </div>
+                {i < 3 && <div style={{ width: 12, height: 1, background: 'var(--line)' }} />}
+              </div>
+            )
+          })}
         </div>
 
         <button
           onClick={() => router.push('/dashboard')}
           style={{
-            background: 'transparent',
-            border: 'none',
-            color: '#444',
-            cursor: 'pointer',
-            padding: 4,
-            borderRadius: 6,
-            display: 'flex',
-            alignItems: 'center',
+            width: 32, height: 32, borderRadius: 8,
+            background: 'var(--bg-2)',
+            border: '1px solid var(--line)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            cursor: 'pointer', color: 'var(--text-3)',
+            transition: 'all 0.2s ease',
           }}
+          onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--text-1)'; (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--line-2)' }}
+          onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = 'var(--text-3)'; (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--line)' }}
         >
-          <X size={18} />
+          <X size={14} />
         </button>
-      </div>
+      </header>
 
       {/* Progress bar */}
-      <div style={{ height: 2, background: '#111', position: 'relative', zIndex: 10 }}>
-        <motion.div
-          style={{ height: '100%', background: '#F5A623', originX: 0 }}
-          initial={false}
-          animate={{ width: `${progress}%` }}
-          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+      <div style={{ height: 1, background: 'var(--line)', margin: '14px 0 0', position: 'relative', zIndex: 10 }}>
+        <div
+          ref={barRef}
+          style={{
+            height: '100%',
+            width: '0%',
+            background: 'linear-gradient(90deg, var(--amber-mid), var(--amber))',
+            boxShadow: '0 0 12px rgba(245,158,11,0.5)',
+          }}
         />
       </div>
 
-      {/* Step label */}
-      <div className="relative z-10 px-6 pt-5 pb-1">
-        <div className="flex items-center gap-2">
-          <span
-            style={{
-              fontSize: 11,
-              color: '#F5A623',
-              fontWeight: 600,
-              letterSpacing: '0.1em',
-              textTransform: 'uppercase',
-            }}
-          >
-            Step {step} of {totalSteps}
-          </span>
-          <span style={{ color: '#333', fontSize: 11 }}>—</span>
-          <span style={{ color: '#555', fontSize: 11 }}>{STEPS[step - 1]}</span>
-        </div>
-      </div>
-
-      {/* Content */}
-      <div className="relative z-10 flex-1 overflow-hidden">
-        <AnimatePresence mode="wait" custom={direction}>
-          <motion.div
-            key={step}
-            custom={direction}
-            variants={{
-              enter: (d: number) => ({
-                opacity: 0,
-                x: d * 60,
-                filter: 'blur(4px)',
-              }),
-              center: {
-                opacity: 1,
-                x: 0,
-                filter: 'blur(0px)',
-              },
-              exit: (d: number) => ({
-                opacity: 0,
-                x: d * -60,
-                filter: 'blur(4px)',
-              }),
-            }}
-            initial="enter"
-            animate="center"
-            exit="exit"
-            transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-            className="h-full"
-          >
-            {children}
-          </motion.div>
-        </AnimatePresence>
+      {/* Content — fixed height, no reflow */}
+      <div style={{
+        position: 'relative', zIndex: 10,
+        flex: 1,
+        overflow: 'hidden',
+      }}>
+        {children}
       </div>
     </div>
   )

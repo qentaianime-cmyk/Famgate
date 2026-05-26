@@ -13,8 +13,7 @@ interface StepProps {
 const features = [
   { icon: QrCode,   label: 'Generate UPI QR codes instantly',      delay: 0.5 },
   { icon: Bell,     label: 'Gmail auto-confirms every payment',     delay: 0.65 },
-  { icon: Webhook,  label: 'Webhook fires on each successful pay',  delay: 0.80 },
-]
+{ icon: ArrowsSplit, label: 'Webhook fires on each successful pay', delay: 0.80 },]
 
 export function Step1Welcome({ onNext, direction }: StepProps) {
   const displayName = useAuthStore(s => s.displayName)

@@ -1,292 +1,203 @@
 'use client'
-import { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import { ArrowRight, ArrowLeft, Envelope, CheckCircle, Warning } from '@phosphor-icons/react'
+import { useState, useEffect, useRef } from 'react'
+import { gsap } from 'gsap'
+import { ArrowRight, ArrowLeft, GoogleLogo, Lock, ShieldCheck, Key } from '@phosphor-icons/react'
 import { StepShell } from './StepShell'
-import { settingsApi } from '@/lib/api'
 
 interface StepProps { onNext: () => void; onBack: () => void; direction: number }
 
-export function Step3Gmail({ onNext, onBack, direction }: StepProps) {
-  const [gmail, setGmail] = useState('')
-  const [appPass, setAppPass] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
-  const [gmailError, setGmailError] = useState('')
+const STEPS = [
+  {
+    icon: GoogleLogo, color: '#4285F4',
+    num: '01', title: 'Open Google Account',
+    body: 'Go to myaccount.google.com — or tap your profile photo anywhere in Google and choose "Manage your Google Account".',
+    chip: 'myaccount.google.com',
+  },
+  {
+    icon: ShieldCheck, color: '#10B981',
+    num: '02', title: 'Go to Security',
+    body: 'In the top navigation, tap the "Security" tab. On mobile, it may be inside a side menu.',
+    chip: 'Security tab',
+  },
+  {
+    icon: Lock, color: 'var(--amber)',
+    num: '03', title: 'Enable 2-Step Verification',
+    body: 'Under "How you sign in to Google", find 2-Step Verification. Turn it ON. This is required before App Passwords appear.',
+    chip: '2-Step Verification → ON',
+  },
+  {
+    icon: Key, color: '#a78bfa',
+    num: '04', title: 'Generate App Password',
+    body: 'After 2FA is on, search "App Passwords" in the Google search bar. Name it "FamSaaS" and tap Generate. Copy the 16-character password.',
+    chip: 'App Passwords → Generate → Copy',
+  },
+]
 
-  // Format app password: insert space every 4 chars for readability
-  const formatAppPass = (val: string) => {
-    const clean = val.replace(/\s/g, '').toLowerCase().slice(0, 16)
-    return clean.match(/.{1,4}/g)?.join(' ') ?? clean
-  }
+export function Step2Google({ onNext, onBack, direction }: StepProps) {
+  const [active, setActive] = useState(0)
+  const cardRef = useRef<HTMLDivElement>(null)
 
-  const cleanPass = appPass.replace(/\s/g, '')
-  const passProgress = cleanPass.length
-  const passComplete = passProgress === 16
-
-  const handleSubmit = async () => {
-    setError('')
-    setGmailError('')
-
-    if (!gmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(gmail)) {
-      setGmailError('Enter a valid Gmail address')
-      return
-    }
-    if (!passComplete) {
-      setError('App Password must be exactly 16 characters')
-      return
-    }
-
-    setLoading(true)
-    try {
-      await settingsApi.save({
-        gmail_user: gmail,
-        gmail_app_password: cleanPass,
-      })
-      onNext()
-    } catch (err: any) {
-      setError(err.response?.data?.error ?? 'Failed to save. Please try again.')
-    } finally {
-      setLoading(false)
+  const animateCard = () => {
+    if (cardRef.current) {
+      gsap.fromTo(cardRef.current,
+        { y: 12, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.35, ease: 'power3.out' }
+      )
     }
   }
+
+  useEffect(() => { animateCard() }, [active])
+
+  const curr = STEPS[active]
+  const Icon = curr.icon
 
   return (
-    <StepShell step={3} direction={direction}>
-      <div className="flex flex-col h-full px-6 pb-10 pt-6 max-w-lg mx-auto w-full">
+    <StepShell step={2}>
+      <div style={{
+        height: '100%', display: 'flex', flexDirection: 'column',
+        padding: '20px 24px 28px',
+        maxWidth: 480, margin: '0 auto', width: '100%',
+      }}>
+        {/* Header */}
+        <div style={{ marginBottom: 20 }}>
+          <div style={{ fontSize: 11, color: 'var(--amber)', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 6 }}>
+            STEP 2 OF 4
+          </div>
+          <h1 style={{ fontSize: 22, fontWeight: 700, color: 'var(--text-1)', letterSpacing: '-0.025em' }}>
+            Get your App Password
+          </h1>
+          <p style={{ fontSize: 13, color: 'var(--text-2)', marginTop: 4 }}>
+            4 quick steps inside Google Account
+          </p>
+        </div>
 
-        <motion.h1
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          style={{ fontSize: 26, fontWeight: 800, color: '#fff', marginBottom: 6 }}
+        {/* Card — fixed height so no layout shift */}
+        <div
+          ref={cardRef}
+          style={{
+            flex: 1,
+            background: 'var(--bg-1)',
+            border: '1px solid var(--line)',
+            borderRadius: 'var(--radius-xl)',
+            padding: '22px 20px',
+            display: 'flex', flexDirection: 'column',
+          }}
         >
-          Connect Gmail
-        </motion.h1>
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.1 }}
-          style={{ color: '#555', fontSize: 14, marginBottom: 32 }}
-        >
-          We read payment confirmation emails to auto-verify payments
-        </motion.p>
-
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 24, flex: 1 }}>
-
-          {/* Gmail input */}
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15 }}
-          >
-            <label style={{ fontSize: 11, color: '#666', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', display: 'block', marginBottom: 8 }}>
-              Gmail Address
-            </label>
-            <div style={{ position: 'relative' }}>
-              <Envelope
-                size={16}
-                color="#444"
-                style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}
-              />
-              <input
-                type="email"
-                placeholder="yourname@gmail.com"
-                value={gmail}
-                onChange={e => { setGmail(e.target.value); setGmailError('') }}
-                style={{
-                  width: '100%',
-                  background: '#111',
-                  border: `1px solid ${gmailError ? '#7f1d1d' : '#222'}`,
-                  borderRadius: 12,
-                  padding: '13px 14px 13px 40px',
-                  color: '#fff',
-                  fontSize: 14,
-                  fontFamily: 'var(--font-outfit), sans-serif',
-                  outline: 'none',
-                }}
-              />
+          {/* Icon + num */}
+          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 18 }}>
+            <div style={{
+              width: 46, height: 46, borderRadius: 12, flexShrink: 0,
+              background: `${curr.color}18`,
+              border: `1px solid ${curr.color}30`,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+              <Icon size={22} color={curr.color} weight="fill" />
             </div>
-            {gmailError && (
-              <p style={{ fontSize: 12, color: '#f87171', marginTop: 6, display: 'flex', alignItems: 'center', gap: 4 }}>
-                <Warning size={12} /> {gmailError}
-              </p>
-            )}
-          </motion.div>
+            <span style={{
+              fontSize: 42, fontWeight: 800, color: 'var(--line-2)',
+              lineHeight: 1, letterSpacing: '-0.04em',
+              fontVariantNumeric: 'tabular-nums',
+            }}>
+              {curr.num}
+            </span>
+          </div>
 
-          {/* App password — segmented display */}
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.25 }}
-          >
-            <label style={{ fontSize: 11, color: '#666', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', display: 'block', marginBottom: 8 }}>
-              16-Character App Password
-            </label>
+          <h2 style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-1)', letterSpacing: '-0.02em', marginBottom: 10 }}>
+            {curr.title}
+          </h2>
+          <p style={{ fontSize: 13, color: 'var(--text-2)', lineHeight: 1.7, flex: 1 }}>
+            {curr.body}
+          </p>
 
-            {/* Segmented blocks */}
-            <div style={{ display: 'flex', gap: 6, marginBottom: 12 }}>
-              {[0, 1, 2, 3].map(groupIdx => (
-                <div
-                  key={groupIdx}
-                  style={{
-                    flex: 1,
-                    background: '#111',
-                    border: `1px solid ${
-                      cleanPass.length >= (groupIdx + 1) * 4
-                        ? '#F5A623'
-                        : cleanPass.length >= groupIdx * 4
-                        ? '#8B5E1A'
-                        : '#1e1e1e'
-                    }`,
-                    borderRadius: 10,
-                    padding: '12px 8px',
-                    textAlign: 'center',
-                    fontFamily: 'monospace',
-                    fontSize: 15,
-                    letterSpacing: '0.15em',
-                    color: cleanPass.length >= (groupIdx + 1) * 4 ? '#F5A623' : '#444',
-                    transition: 'all 0.2s ease',
-                    minWidth: 0,
-                    overflow: 'hidden',
-                  }}
-                >
-                  {cleanPass.slice(groupIdx * 4, (groupIdx + 1) * 4).padEnd(4, '·')}
-                </div>
-              ))}
-            </div>
+          {/* Chip */}
+          <div style={{
+            marginTop: 16,
+            display: 'inline-flex', alignItems: 'center', gap: 7,
+            padding: '7px 12px',
+            background: 'var(--bg-2)',
+            border: '1px solid var(--line-2)',
+            borderRadius: 8,
+            alignSelf: 'flex-start',
+          }}>
+            <div style={{ width: 5, height: 5, borderRadius: '50%', background: curr.color }} />
+            <span style={{ fontSize: 12, color: 'var(--text-2)', fontFamily: 'var(--font-geist-mono)' }}>
+              {curr.chip}
+            </span>
+          </div>
+        </div>
 
-            {/* Actual input */}
-            <input
-              type="text"
-              placeholder="Paste or type your 16-character app password"
-              value={appPass}
-              onChange={e => {
-                setAppPass(formatAppPass(e.target.value))
-                setError('')
-              }}
-              maxLength={19} // 16 chars + 3 spaces
+        {/* Dots */}
+        <div style={{ display: 'flex', justifyContent: 'center', gap: 6, margin: '16px 0' }}>
+          {STEPS.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setActive(i)}
               style={{
-                width: '100%',
-                background: '#111',
-                border: `1px solid ${error ? '#7f1d1d' : '#222'}`,
-                borderRadius: 12,
-                padding: '13px 14px',
-                color: '#fff',
-                fontSize: 14,
-                fontFamily: 'monospace',
-                letterSpacing: '0.1em',
-                outline: 'none',
+                width: i === active ? 20 : 6, height: 6,
+                borderRadius: 3, border: 'none', cursor: 'pointer', padding: 0,
+                background: i === active ? 'var(--amber)' : i < active ? 'var(--amber-mid)' : 'var(--line-2)',
+                transition: 'all 0.3s ease',
               }}
             />
-
-            {/* Progress bar */}
-            <div style={{ marginTop: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
-              <div style={{ flex: 1, height: 3, background: '#1a1a1a', borderRadius: 2 }}>
-                <motion.div
-                  animate={{ width: `${(passProgress / 16) * 100}%` }}
-                  transition={{ duration: 0.2 }}
-                  style={{
-                    height: '100%',
-                    background: passComplete ? '#22C55E' : '#F5A623',
-                    borderRadius: 2,
-                  }}
-                />
-              </div>
-              <span style={{ fontSize: 11, color: passComplete ? '#22C55E' : '#555', minWidth: 32 }}>
-                {passProgress}/16
-              </span>
-              <AnimatePresence>
-                {passComplete && (
-                  <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    exit={{ scale: 0 }}
-                  >
-                    <CheckCircle size={16} color="#22C55E" weight="fill" />
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-
-            {error && (
-              <p style={{ fontSize: 12, color: '#f87171', marginTop: 6, display: 'flex', alignItems: 'center', gap: 4 }}>
-                <Warning size={12} /> {error}
-              </p>
-            )}
-          </motion.div>
-
-          {/* Info box */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.4 }}
-            style={{
-              background: 'rgba(245,166,35,0.05)',
-              border: '1px solid rgba(245,166,35,0.12)',
-              borderRadius: 12,
-              padding: '14px 16px',
-            }}
-          >
-            <p style={{ fontSize: 12, color: '#8B5E1A', lineHeight: 1.6 }}>
-              🔒 Your App Password is encrypted with AES-256 before storage.
-              We never store your main Google password.
-            </p>
-          </motion.div>
+          ))}
         </div>
 
-        {/* Actions */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 28 }}>
-          <button
-            onClick={handleSubmit}
-            disabled={loading}
-            style={{
-              width: '100%',
-              padding: '15px',
-              background: loading ? '#3D2A0A' : '#F5A623',
-              border: 'none',
-              borderRadius: 14,
-              color: loading ? '#8B5E1A' : '#000',
-              fontSize: 15,
-              fontWeight: 700,
-              cursor: loading ? 'not-allowed' : 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 8,
-              fontFamily: 'var(--font-outfit), sans-serif',
-              transition: 'all 0.2s ease',
-            }}
-          >
-            {loading ? (
-              <>
-                <span style={{ width: 16, height: 16, borderRadius: '50%', border: '2px solid #8B5E1A', borderTopColor: '#F5A623', display: 'inline-block', animation: 'spin 0.8s linear infinite' }} />
-                Saving...
-              </>
-            ) : (
-              <>Save & continue <ArrowRight size={18} /></>
-            )}
-          </button>
-
-          <button
-            onClick={onBack}
-            style={{
-              background: 'transparent',
-              border: 'none',
-              color: '#444',
-              fontSize: 13,
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 6,
-              fontFamily: 'var(--font-outfit), sans-serif',
-              padding: '8px',
-            }}
-          >
-            <ArrowLeft size={14} /> Back to walkthrough
-          </button>
+        {/* Buttons */}
+        <div style={{ display: 'flex', gap: 8 }}>
+          {active > 0 && (
+            <button
+              onClick={() => setActive(a => a - 1)}
+              style={{
+                flex: 1, padding: '13px',
+                background: 'transparent',
+                border: '1px solid var(--line)',
+                borderRadius: 'var(--radius-md)',
+                color: 'var(--text-2)', fontSize: 13,
+                cursor: 'pointer',
+              }}
+            >
+              ← Prev
+            </button>
+          )}
+          {active < 3 ? (
+            <button
+              onClick={() => setActive(a => a + 1)}
+              style={{
+                flex: 1, padding: '13px',
+                background: 'var(--bg-2)',
+                border: '1px solid var(--line-2)',
+                borderRadius: 'var(--radius-md)',
+                color: 'var(--text-1)', fontSize: 13,
+                cursor: 'pointer',
+              }}
+            >
+              Next →
+            </button>
+          ) : (
+            <button
+              onClick={onNext}
+              style={{
+                flex: 1, padding: '13px',
+                background: 'var(--amber)',
+                border: 'none',
+                borderRadius: 'var(--radius-md)',
+                color: '#000', fontSize: 13, fontWeight: 600,
+                cursor: 'pointer',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+              }}
+            >
+              I have it <ArrowRight size={14} weight="bold" />
+            </button>
+          )}
         </div>
 
+        <button onClick={onBack} style={{
+          marginTop: 12, background: 'transparent', border: 'none',
+          color: 'var(--text-3)', fontSize: 12, cursor: 'pointer',
+          display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5,
+        }}>
+          <ArrowLeft size={12} /> Back
+        </button>
       </div>
     </StepShell>
   )

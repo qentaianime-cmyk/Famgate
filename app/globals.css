@@ -24,3 +24,6 @@ html, body {
 ::-webkit-scrollbar-track { background: #0A0A0A; }
 ::-webkit-scrollbar-thumb { background: #222; border-radius: 2px; }
 ::selection { background: #3D2A0A; color: #F5A623; }
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

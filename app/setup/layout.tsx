@@ -5,12 +5,8 @@ import { useAuthStore } from '@/store/authStore'
 
 export default function SetupLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter()
-  const token = useAuthStore(s => s.token)
-
-  useEffect(() => {
-    if (!token) router.replace('/auth/login')
-  }, [token, router])
-
+  const token  = useAuthStore(s => s.token)
+  useEffect(() => { if (!token) router.replace('/auth/login') }, [token, router])
   if (!token) return null
   return <>{children}</>
 }

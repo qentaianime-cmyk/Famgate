@@ -4,16 +4,19 @@ import { GeistMono } from 'geist/font/mono'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'FamSaaS — Payment Gateway',
-  description: 'Accept UPI payments through FamPay. Real-time confirmation.',
+  title: 'FamSaaS — UPI Payment Gateway',
+  description: 'Accept UPI payments through FamPay. Instant auto-confirmation.',
+  themeColor: '#09090b',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable}`}>
-      <body>
-        {children}
-      </body>
+    <html
+      lang="en"
+      className={`${GeistSans.variable} ${GeistMono.variable}`}
+      style={{ colorScheme: 'dark' }}
+    >
+      <body>{children}</body>
     </html>
   )
 }

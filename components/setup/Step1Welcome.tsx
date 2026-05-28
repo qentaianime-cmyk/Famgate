@@ -5,142 +5,93 @@ import { ArrowRight, Lightning, QrCode, Bell, ArrowsSplit } from '@phosphor-icon
 import { StepShell } from './StepShell'
 import { useAuthStore } from '@/store/authStore'
 
-interface StepProps { onNext: () => void; onBack: () => void; direction: number }
+interface Props { onNext: () => void; onBack: () => void; direction: number }
 
 const FEATURES = [
-  { icon: QrCode,      label: 'Instant UPI QR codes for every order',   sub: 'Generated server-side in < 100ms' },
-  { icon: Bell,        label: 'Gmail IMAP auto-confirms payments',       sub: 'No manual checking, ever'          },
-  { icon: ArrowsSplit, label: 'Webhook fires on every confirmed payment', sub: 'Integrate with anything'         },
+  { icon: QrCode,      label: 'Instant UPI QR per order',           sub: 'Generated in < 100ms' },
+  { icon: Bell,        label: 'Gmail auto-confirms payments',        sub: 'No manual checking ever' },
+  { icon: ArrowsSplit, label: 'Webhook on every confirmed payment',  sub: 'Integrate with anything' },
 ]
 
-export function Step1Welcome({ onNext, direction }: StepProps) {
-  const displayName = useAuthStore(s => s.displayName)
-  const containerRef = useRef<HTMLDivElement>(null)
+export function Step1Welcome({ onNext }: Props) {
+  const name = useAuthStore(s => s.displayName)
+  const ref  = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const ctx = gsap.context(() => {
-      const tl = gsap.timeline()
-      tl.from('.s1-icon', { scale: 0.5, opacity: 0, duration: 0.5, ease: 'back.out(2)' })
-        .from('.s1-heading', { y: 32, opacity: 0, duration: 0.6, ease: 'power3.out' }, '-=0.2')
-        .from('.s1-sub', { y: 20, opacity: 0, duration: 0.5, ease: 'power3.out' }, '-=0.35')
-        .from('.s1-feature', {
-          y: 24, opacity: 0, duration: 0.5,
-          stagger: 0.1,
-          ease: 'power3.out',
-        }, '-=0.2')
-        .from('.s1-cta', { y: 16, opacity: 0, duration: 0.4, ease: 'power3.out' }, '-=0.1')
-    }, containerRef)
+      const tl = gsap.timeline({ defaults: { ease: 'power3.out' } })
+      tl.from('.s1-icon',    { scale: 0.4, opacity: 0, duration: 0.5, ease: 'back.out(2)' })
+        .from('.s1-eyebrow', { y: 12, opacity: 0, duration: 0.4 }, '-=0.1')
+        .from('.s1-heading', { y: 24, opacity: 0, duration: 0.55 }, '-=0.25')
+        .from('.s1-sub',     { y: 16, opacity: 0, duration: 0.45 }, '-=0.3')
+        .from('.s1-feature', { y: 20, opacity: 0, duration: 0.4, stagger: 0.09 }, '-=0.2')
+        .from('.s1-cta',     { y: 16, opacity: 0, duration: 0.4 }, '-=0.1')
+    }, ref)
     return () => ctx.revert()
   }, [])
 
   return (
     <StepShell step={1}>
       <div
-        ref={containerRef}
-        style={{
-          height: '100%',
-          display: 'flex',
-          flexDirection: 'column',
-          padding: '28px 24px 32px',
-          maxWidth: 480,
-          margin: '0 auto',
-          width: '100%',
-        }}
+        ref={ref}
+        className="h-full flex flex-col px-5 pb-8 pt-6 max-w-md mx-auto w-full overflow-y-auto"
       >
         {/* Icon */}
-        <div className="s1-icon" style={{
-          width: 52, height: 52, borderRadius: 14,
-          background: 'var(--amber-low)',
-          border: '1px solid rgba(245,158,11,0.2)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          marginBottom: 24,
-        }}>
-          <Lightning size={26} color="var(--amber)" weight="fill" />
+        <div className="s1-icon w-12 h-12 rounded-2xl flex items-center justify-center mb-6"
+          style={{ background: 'rgba(249,115,22,0.1)', border: '1px solid rgba(249,115,22,0.2)' }}>
+          <Lightning size={24} color="#f97316" weight="fill" />
         </div>
+
+        {/* Eyebrow */}
+        <p className="s1-eyebrow text-[11px] font-semibold tracking-widest uppercase text-ember-500 mb-3">
+          Merchant Setup · 3 minutes
+        </p>
 
         {/* Heading */}
-        <div className="s1-heading" style={{ marginBottom: 10 }}>
-          <div style={{ fontSize: 11, color: 'var(--amber)', fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 8 }}>
-            MERCHANT SETUP
-          </div>
-          <h1 style={{
-            fontSize: 'clamp(26px, 7vw, 36px)',
-            fontWeight: 700,
-            color: 'var(--text-1)',
-            lineHeight: 1.15,
-            letterSpacing: '-0.03em',
-          }}>
-            {displayName ? `Hey ${displayName.split(' ')[0]}.` : 'Welcome.'}<br />
-            <span style={{ color: 'var(--amber)' }}>Arm</span> your gateway<br />
-            in 3 minutes.
-          </h1>
-        </div>
+        <h1 className="s1-heading text-[clamp(26px,7vw,36px)] font-bold text-white leading-[1.12] tracking-tight mb-3">
+          {name ? `Hey ${name.split(' ')[0]},` : 'Welcome.'}<br />
+          <span className="text-ember-500">Arm</span> your gateway.
+        </h1>
 
-        <p className="s1-sub" style={{
-          color: 'var(--text-2)', fontSize: 14, lineHeight: 1.65,
-          marginBottom: 28,
-        }}>
-          Connect Gmail + UPI. We handle payment confirmation automatically — no polling, no manual work.
+        <p className="s1-sub text-zinc-500 text-sm leading-relaxed mb-7">
+          Connect Gmail + UPI once. Every payment confirms automatically — no polling, no manual work.
         </p>
 
         {/* Features */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, flex: 1 }}>
+        <div className="s1-feature flex flex-col gap-2.5 flex-1">
           {FEATURES.map(({ icon: Icon, label, sub }) => (
             <div
               key={label}
-              className="s1-feature"
-              style={{
-                display: 'flex', alignItems: 'center', gap: 14,
-                padding: '14px 16px',
-                background: 'var(--bg-1)',
-                borderRadius: 'var(--radius-md)',
-                border: '1px solid var(--line)',
-              }}
+              className="flex items-center gap-3.5 p-3.5 rounded-xl bg-zinc-900 border border-zinc-800 hover:border-zinc-700 transition-colors"
             >
-              <div style={{
-                width: 34, height: 34, borderRadius: 9, flexShrink: 0,
-                background: 'var(--bg-2)',
-                border: '1px solid var(--line)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-              }}>
-                <Icon size={16} color="var(--amber)" />
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 bg-zinc-800 border border-zinc-700">
+                <Icon size={15} color="#f97316" />
               </div>
               <div>
-                <div style={{ fontSize: 13, color: 'var(--text-1)', fontWeight: 500, lineHeight: 1.3 }}>{label}</div>
-                <div style={{ fontSize: 11, color: 'var(--text-3)', marginTop: 2 }}>{sub}</div>
+                <p className="text-sm text-zinc-200 font-medium leading-tight">{label}</p>
+                <p className="text-xs text-zinc-600 mt-0.5">{sub}</p>
               </div>
             </div>
           ))}
         </div>
 
         {/* CTA */}
-        <div className="s1-cta" style={{ marginTop: 24 }}>
+        <div className="s1-cta mt-7">
           <button
             onClick={onNext}
+            className="w-full h-12 rounded-xl font-semibold text-sm flex items-center justify-center gap-2 transition-all duration-150 active:scale-[0.97]"
             style={{
-              width: '100%', padding: '15px 20px',
-              background: 'var(--amber)',
-              border: 'none', borderRadius: 'var(--radius-lg)',
-              color: '#000', fontSize: 14, fontWeight: 600,
-              cursor: 'pointer', display: 'flex',
-              alignItems: 'center', justifyContent: 'center', gap: 8,
-              letterSpacing: '-0.01em',
-              boxShadow: '0 0 0 0 rgba(245,158,11,0)',
-              transition: 'transform 0.15s ease, box-shadow 0.3s ease',
+              background: 'linear-gradient(135deg, #f97316, #ea580c)',
+              color: '#fff',
+              boxShadow: '0 1px 0 rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.08)',
             }}
-            onMouseEnter={e => {
-              (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(-1px)'
-              ;(e.currentTarget as HTMLButtonElement).style.boxShadow = '0 8px 32px rgba(245,158,11,0.3)'
-            }}
-            onMouseLeave={e => {
-              (e.currentTarget as HTMLButtonElement).style.transform = 'translateY(0)'
-              ;(e.currentTarget as HTMLButtonElement).style.boxShadow = '0 0 0 0 rgba(245,158,11,0)'
-            }}
+            onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 0 0 0 transparent, 0 8px 32px rgba(249,115,22,0.35)' }}
+            onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 1px 0 rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.08)' }}
           >
             Begin setup <ArrowRight size={16} weight="bold" />
           </button>
-          <p style={{ textAlign: 'center', color: 'var(--text-3)', fontSize: 12, marginTop: 10 }}>
-            Skip for now — Settings → Configure anytime
+          <p className="text-center text-zinc-700 text-xs mt-2.5">
+            Skip for now — come back via Settings anytime
           </p>
         </div>
       </div>

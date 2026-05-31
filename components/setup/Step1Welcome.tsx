@@ -3,6 +3,8 @@ import { useEffect, useRef } from 'react'
 import { gsap } from 'gsap'
 import { ArrowRight, Lightning, QrCode, Bell, ArrowsSplit } from '@phosphor-icons/react'
 import { StepShell } from './StepShell'
+import { motion } from 'framer-motion'
+import { KineticText } from '@/components/ui/KineticText'
 import { useAuthStore } from '@/store/authStore'
 
 interface Props { onNext: () => void; onBack: () => void; direction: number }
@@ -47,11 +49,61 @@ export function Step1Welcome({ onNext }: Props) {
           Merchant Setup · 3 minutes
         </p>
 
-        {/* Heading */}
-        <h1 className="s1-heading text-[clamp(26px,7vw,36px)] font-bold text-white leading-[1.12] tracking-tight mb-3">
-          {name ? `Hey ${name.split(' ')[0]},` : 'Welcome.'}<br />
-          <span className="text-ember-500">Arm</span> your gateway.
-        </h1>
+<div className="s1-heading">
+
+  <KineticText
+
+    text={name ? `Hey ${name.split(' ')[0]},` : 'Welcome.'}
+
+    as="h1"
+
+    delay={0.2}
+
+    stagger={0.1}
+
+    className="text-[clamp(26px,7vw,34px)] font-bold text-white tracking-tight leading-tight"
+
+  />
+
+  <div className="flex flex-wrap gap-[0.25em] overflow-hidden mt-0.5">
+
+    {['Arm', 'your', 'gateway.'].map((word, i) => (
+
+      <span key={word} style={{ overflow: 'hidden', display: 'inline-block' }}>
+
+        <motion.span
+
+          className={`text-[clamp(26px,7vw,34px)] font-bold tracking-tight leading-tight inline-block ${i === 0 ? 'text-ember-500' : 'text-white'}`}
+
+          initial={{ y: '110%' }}
+
+          animate={{ y: '0%' }}
+
+          transition={{
+
+            type: 'spring',
+
+            damping: 18,
+
+            stiffness: 160,
+
+            delay: 0.38 + i * 0.1,
+
+          }}
+
+        >
+
+          {word}
+
+        </motion.span>
+
+      </span>
+
+    ))}
+
+  </div>
+
+</div>
 
         <p className="s1-sub text-zinc-500 text-sm leading-relaxed mb-7">
           Connect Gmail + UPI once. Every payment confirms automatically — no polling, no manual work.

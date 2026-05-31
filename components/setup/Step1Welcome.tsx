@@ -48,35 +48,34 @@ export function Step1Welcome({ onNext }: Props) {
         <p className="s1-eyebrow text-[11px] font-semibold tracking-widest uppercase text-ember-500 mb-3">
           Merchant Setup · 3 minutes
         </p>
-{/* CHOTTI LULI UPDATE */}
-<div className="s1-heading">
-  <KineticText
-    text={name ? `Hey ${name.split(' ')[0]},` : 'Welcome.'}
-    as="h1"
-    delay={0.2}
-    stagger={0.1}
-    className="text-[clamp(26px,7vw,34px)] font-bold text-white tracking-tight leading-tight"
-  />
 
-  <div className="flex flex-wrap gap-[0.25em] overflow-hidden mt-0.5">
-    {['Arm', 'your', 'gateway.'].map((word, i) => (
-      <span key={word} style={{ overflow: 'hidden', display: 'inline-block' }}>
-        <motion.span
-          className={`text-[clamp(26px,7vw,34px)] font-bold tracking-tight leading-tight inline-block ${i === 0 ? 'text-ember-500' : 'text-white'}`}
-          initial={{ y: '110%' }}
-          animate={{ y: '0%' }}
-          transition={{
-            type: 'spring',
-            damping: 18,
-            stiffness: 160,
-            delay: 0.38 + i * 0.1,
-          }}
-        >
-          {word}
-        </motion.span>
-      </span>
-    ))}
-  </div>
+<div className="s1-heading text-left">
+  <KineticText
+    text={name ? `Hey ${name.split(' ')[0]},` : 'Welcome.'}
+    as="h1"
+    delay={0.2}
+    stagger={0.1}
+    className="text-[clamp(26px,7vw,34px)] font-bold text-white tracking-tight leading-tight block"
+  />
+  <div className="flex flex-row flex-nowrap items-center gap-[0.25em] overflow-hidden mt-1 text-left w-full justify-start">
+    {['Arm', 'your', 'gateway.'].map((word, i) => (
+      <span key={word} className="overflow-hidden inline-block shrink-0">
+        <motion.span
+          className={`text-[clamp(26px,7vw,34px)] font-bold tracking-tight leading-tight inline-block ${i === 0 ? 'text-ember-500' : 'text-white'}`}
+          initial={{ y: '110%' }}
+          animate={{ y: '0%' }}
+          transition={{
+            type: 'spring',
+            damping: 18,
+            stiffness: 160,
+            delay: 0.38 + i * 0.1,
+          }}
+        >
+          {word}
+        </motion.span>
+      </span>
+    ))}
+  </div>
 </div>
 
         <p className="s1-sub text-zinc-500 text-sm leading-relaxed mb-7">

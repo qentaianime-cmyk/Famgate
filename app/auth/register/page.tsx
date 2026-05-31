@@ -1,5 +1,6 @@
 'use client'
 import { useEffect, useRef, useState } from 'react'
+import { KineticText } from '@/components/ui/KineticText'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { gsap } from 'gsap'
@@ -27,7 +28,15 @@ export default function RegisterPage() {
   const [svrErr,  setSvrErr]  = useState('')
   const [loading, setLoading] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
+// Add these after the useState declarations:
+const token = useAuthStore(s => s.token)
+const [ready, setReady] = useState(false)
 
+useEffect(() => { setReady(true) }, [])
+useEffect(() => {
+  if (!ready) return
+  if (token) router.replace('/dashboard')
+}, [ready, token, router])
   const animateIn = (delay = 0) => {
     gsap.fromTo('.reg-item',
       { y: 18, opacity: 0 },
@@ -146,9 +155,12 @@ export default function RegisterPage() {
             {step === 0 ? (
               <>
                 <div className="reg-item mb-6">
-                  <h1 className="text-2xl font-bold text-white tracking-tight mb-1">
-                    Create account
-                  </h1>
+                  <KineticText
+  text="Create account"
+  as="h1"
+  delay={0.1}
+  className="text-[24px] font-bold text-white tracking-tight leading-tight mb-1"
+/>
                   <p className="text-zinc-500 text-sm">Set up your merchant credentials</p>
                 </div>
 

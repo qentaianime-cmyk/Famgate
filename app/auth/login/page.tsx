@@ -220,21 +220,18 @@ export default function LoginPage() {
                     className="pt-1"
                   >
                     <MagneticButton
-                      type="submit"
-                      loading={loading}
-                      className="w-full h-12"
-                      style={{
-                        background: 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)',
-                        color: '#fff',
-                        boxShadow: '0 1px 0 rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.08)',
-                      } as React.CSSProperties}
-                    >
-                      Sign in <ArrowRight size={15} weight="bold" />
-                    </MagneticButton>
+  type="submit"
+  loading={loading}
+  className="w-full h-12 bg-gradient-to-br from-[#f97316] to-[#ea580c] text-white shadow-[0_1px_0_rgba(0,0,0,0.3),_inset_0_1px_0_rgba(255,255,255,0.08)] flex items-center justify-center gap-2"
+>
+  Sign in <ArrowRight size={15} weight="bold" />
+</MagneticButton>
+
                   </motion.div>
                 </div>
               </form>
 
+         
               {/* Features — staggered */}
               <motion.div
                 className="mt-6 pt-5 border-t border-zinc-800/70"

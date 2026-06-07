@@ -24,6 +24,7 @@ export const authApi = {
 }
 export const meApi = {
   get:          ()      => api.get('/me.php'),
+  updateName:   (n:string) => api.post('/me.php', { display_name: n }),
   uploadAvatar: (img:string) => api.post('/upload-avatar.php', { image: img }),
 }
 export const settingsApi = {

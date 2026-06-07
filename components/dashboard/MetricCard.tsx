@@ -17,29 +17,26 @@ interface Props {
 
 export function MetricCard({ label, value, prefix, suffix, sub, pulse, pulseColor='#f59e0b', delay=0, format }: Props) {
   const numRef = useRef<HTMLSpanElement>(null)
-
-  useEffect(() => {
-    if (typeof value !== 'number' || !numRef.current) return
-    gsap.fromTo(
-      { val: 0 },
-      {
-        val: value,
-        duration: 1.2,
-        delay: 0.3 + delay,
-        ease: 'power3.out',
-        onUpdate: function() {
-          if (numRef.current) {
-            const v = this.targets()[0].val as number
-            numRef.current.textContent = format
-              ? format(v)
-              : v >= 1000
-              ? v.toLocaleString('en-IN', { maximumFractionDigits: 0 })
-              : v.toFixed(v % 1 === 0 ? 0 : 1)
-          }
-        },
+useEffect(() => {
+  if (typeof value !== 'number' || !numRef.current) return
+  const counter = { val: 0 }
+  gsap.to(counter, {
+    val: value,
+    duration: 1.2,
+    delay: 0.3 + delay,
+    ease: 'power3.out',
+    onUpdate: () => {
+      if (numRef.current) {
+        const v = counter.val
+        numRef.current.textContent = format
+          ? format(v)
+          : v >= 1000
+          ? v.toLocaleString('en-IN', { maximumFractionDigits: 0 })
+          : v.toFixed(v % 1 === 0 ? 0 : 1)
       }
-    )
-  }, [value, delay, format])
+    },
+  })
+}, [value, delay, format])
 
   return (
     <div

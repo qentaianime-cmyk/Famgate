@@ -34,12 +34,11 @@
 /* ─── Reset ─────────────────────────────────────────────── */
 *,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
 
-html {
+hhtml {
   background: var(--bg);
   scroll-behavior: auto;
-  overflow-x: hidden;
-  /* Fix scroll position restored on refresh */
   overflow-anchor: none;
+  /* overflow-x: hidden removed — kills Chrome mobile touch scroll */
 }
 
 body {
@@ -49,9 +48,8 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
-  overflow-x: hidden;
-  /* Kill scroll restoration */
-  overscroll-behavior: none;
+  overflow-x: clip;
+  
 }
 
 /* ─── Chrome autofill nuclear option ────────────────────── */

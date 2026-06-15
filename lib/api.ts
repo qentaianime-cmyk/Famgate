@@ -2,7 +2,9 @@ import axios from 'axios'
 const BASE = process.env.NEXT_PUBLIC_API_URL!
 
 export const api = axios.create({ baseURL: BASE, headers: { 'Content-Type': 'application/json' } })
-
+export const googleAuthApi = {
+  getUrl: () => api.get('/google-auth.php'),
+}
 api.interceptors.request.use(cfg => {
   if (typeof window !== 'undefined') {
     const t = localStorage.getItem('qash_token')

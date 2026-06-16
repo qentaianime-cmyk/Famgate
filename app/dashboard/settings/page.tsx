@@ -10,7 +10,7 @@ import { settingsApi }  from '@/lib/api'
 import Link from 'next/link'
 
 interface Settings {
-  fampay_upi_id: string; gmail_user: string; gmail_configured: boolean
+  fampay_upi_id: string; gmail_user: string; gmail_method?: string; gmail_configured: boolean
   webhook_url: string; api_key_live: string; api_key_test: string
 }
 
@@ -130,9 +130,7 @@ export default function SettingsPage() {
                 {s.gmail_user || 'Not connected'}
               </p>
               <p className="text-xs text-ink-3 font-manrope">
-               // REPLACE WITH:
-{s.gmail_configured
-  ? s.gmail_method === 'oauth'
+            {s.gmail_configured ? s.gmail_method === 'oauth'
     ? 'Connected via Google OAuth'
     : 'Connected via App Password'
   : 'Setup required'}

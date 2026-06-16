@@ -130,7 +130,12 @@ export default function SettingsPage() {
                 {s.gmail_user || 'Not connected'}
               </p>
               <p className="text-xs text-ink-3 font-manrope">
-                {s.gmail_configured ? 'Auto-confirming payments' : 'Setup required'}
+               // REPLACE WITH:
+{s.gmail_configured
+  ? s.gmail_method === 'oauth'
+    ? 'Connected via Google OAuth'
+    : 'Connected via App Password'
+  : 'Setup required'}
               </p>
             </div>
           </div>

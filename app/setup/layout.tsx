@@ -7,34 +7,42 @@ export default function SetupLayout({ children }: { children: React.ReactNode })
   const router        = useRouter()
   const token         = useAuthStore(s => s.token)
   const requiresSetup = useAuthStore(s => s.requiresSetup)
+  
   const [ready, setReady] = useState(false)
+  const [hydrated, setHydrated] = useState(false)
+
+  // 1. Wait for Zustand to load data from localStorage
+  useEffect(() => {
+    setHydrated(true)
+  }, [])
 
   useEffect(() => {
-    // 1. Not logged in → go to login immediately
+    // If the store hasn't loaded yet, do nothing. Just wait.
+    if (!hydrated) return
+
+    // 2. Now we safely check the token. 
+    // If it's truly empty, send to login.
     if (!token) {
       router.replace('/auth/login')
       return
     }
 
-    // 2. Safely read URL parameters strictly client-side
+    // 3. Read URL parameters client-side
     const params      = new URLSearchParams(window.location.search)
     const isReconnect = params.get('reconnect')    === 'true'
     const isGmail     = params.get('gmail')        === 'connected'
     const hasError    = params.get('error')        !== null
 
-    // 3. Safety Check: Are they currently looking at a step subroute?
-    // This stops the layout from breaking out of /setup/step/3 during page load
-    const isInsideSteps = window.location.pathname.includes('/setup/step')
-
-    // 4. Tight Guard Condition
-    // ONLY redirect to dashboard if setup is complete AND they aren't actively running a setup step flow
-    if (!requiresSetup && !isReconnect && !isGmail && !hasError && !isInsideSteps) {
+    // 4. ONLY kick them to dashboard if they are totally finished 
+    // AND they are not currently returning from Google/reconnecting.
+    if (!requiresSetup && !isReconnect && !isGmail && !hasError) {
       router.replace('/dashboard')
       return
     }
 
+    // Safe to show the setup screen!
     setReady(true)
-  }, [token, requiresSetup, router])
+  }, [hydrated, token, requiresSetup, router])
 
   if (!ready) return (
     <div style={{

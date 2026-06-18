@@ -137,11 +137,11 @@ export default function SettingsPage() {
               </p>
             </div>
           </div>
-          <Link href="/setup/step/3"
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-syne font-bold transition-all"
-            style={{ background:'var(--surface)', border:'1px solid var(--bd)', color:'var(--ink-2)' }}>
-            {s.gmail_configured ? 'Reconnect' : 'Connect'} <ArrowSquareOut size={12} />
-          </Link>
+        
+<Link href="/setup/step/3?reconnect=true"
+  className="...">
+  {s.gmail_configured ? 'Reconnect' : 'Connect'} <ArrowSquareOut size={12} />
+</Link>
         </div>
       </section>
 

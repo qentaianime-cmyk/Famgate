@@ -22,30 +22,31 @@ export function Step3Gmail({ onNext, onBack }: Props) {
   const [gmailUser, setGmailUser] = useState('')
   const [errMsg,    setErrMsg]    = useState('')
 
-  // Check if returning from OAuth callback
-  useEffect(() => {
-    const error  = searchParams.get('error')
-    const linked = searchParams.get('gmail')
+  // Replace the existing useEffect:
+useEffect(() => {
+  const params      = new URLSearchParams(window.location.search)
+  const gmailParam  = params.get('gmail')
+  const errorParam  = params.get('error')
 
-    if (error === 'access_denied') {
-      setStatus('error')
-      setErrMsg('You denied Gmail access. Please try again.')
-      return
-    }
-    if (error === 'no_refresh_token') {
-      setStatus('error')
-      setErrMsg('Google did not return a token. Please try connecting again.')
-      return
-    }
+  if (errorParam === 'access_denied') {
+    setStatus('error')
+    setErrMsg('You denied Gmail access. Please try again.')
+    return
+  }
+  if (errorParam === 'no_refresh_token') {
+    setStatus('error')
+    setErrMsg('Google did not return a token. Please reconnect.')
+    return
+  }
 
-    // Check if already connected (returning from OAuth or revisiting step)
-    meApi.get().then(r => {
-      if (r.data.gmail_configured) {
-        setStatus('connected')
-        setGmailUser(r.data.gmail_user ?? '')
-      }
-    }).catch(() => {})
-  }, [searchParams])
+  // Check if Gmail is already connected (from OAuth callback or previous session)
+  meApi.get().then(r => {
+    if (r.data.gmail_configured) {
+      setStatus('connected')
+      setGmailUser(r.data.gmail_user ?? '')
+    }
+  }).catch(() => {})
+}, [])
 
   useGSAP(() => {
     gsap.from('.s3-item', {
@@ -88,44 +89,44 @@ export function Step3Gmail({ onNext, onBack }: Props) {
         <div className="flex-1 flex flex-col justify-center">
 
           {/* Connected state */}
-          {status === 'connected' && (
-            <div className="s3-item flex flex-col items-center text-center gap-4">
-              <div
-                className="w-20 h-20 rounded-full flex items-center justify-center"
-                style={{
-                  background: 'rgba(16,185,129,0.1)',
-                  border: '1px solid rgba(16,185,129,0.3)',
-                }}
-              >
-                <CheckCircle size={40} color="var(--green)" weight="fill" />
-              </div>
-              <div>
-                <p className="font-syne font-bold text-lg text-ink-1 mb-1">
-                  Gmail connected!
-                </p>
-                <p className="text-ink-2 text-sm font-manrope">{gmailUser}</p>
-                <p className="text-ink-3 text-xs font-manrope mt-1">
-                  FamApp payment emails will be read automatically
-                </p>
-              </div>
+         {status === 'connected' && (
+  <div className="s3-item flex flex-col items-center text-center gap-4">
+    <div
+      className="w-20 h-20 rounded-full flex items-center justify-center"
+      style={{
+        background:'rgba(16,185,129,0.1)',
+        border:'1px solid rgba(16,185,129,0.3)',
+      }}
+    >
+      <CheckCircle size={40} color="var(--green)" weight="fill" />
+    </div>
+    <div>
+      <p className="font-syne font-bold text-lg text-ink-1 mb-1">
+        Gmail connected!
+      </p>
+      <p className="text-ink-2 text-sm font-manrope">{gmailUser}</p>
+      <p className="text-ink-3 text-xs font-manrope mt-1">
+        FamApp payment emails will be scanned automatically
+      </p>
+    </div>
 
-              <MagneticButton
-                type="button"
-                onClick={onNext}
-                className="w-full h-12 rounded-xl text-sm text-white bg-violet-gradient font-syne font-bold tracking-tight mt-4"
-              >
-                Continue to UPI setup <ArrowRight size={15} weight="bold" />
-              </MagneticButton>
+    {/* Prominent CTA — user must click this to go to step 4 */}
+    <MagneticButton
+      type="button"
+      onClick={onNext}
+      className="w-full h-12 rounded-xl text-sm text-white bg-violet-gradient font-syne font-bold tracking-tight"
+    >
+      Continue — Set your UPI ID <ArrowRight size={15} weight="bold" />
+    </MagneticButton>
 
-              <button
-                onClick={handleConnect}
-                className="text-xs text-ink-3 font-manrope hover:text-ink-2 transition-colors"
-              >
-                Connect a different Gmail account
-              </button>
-            </div>
-          )}
-
+    <button
+      onClick={handleConnect}
+      className="text-xs text-ink-3 font-manrope hover:text-ink-2 transition-colors"
+    >
+      Connect a different Gmail account
+    </button>
+  </div>
+)}
           {/* Connect button state */}
           {status !== 'connected' && (
             <div className="s3-item flex flex-col gap-5">

@@ -1,12 +1,15 @@
 'use client'
 import { useState } from 'react'
 import { StatusBadge } from './StatusBadge'
+// Imported the manual verification modal (adjust this path if it's inside a different folder, like '../modals/ManualVerifyModal')
+import { ManualVerifyModal } from './ManualVerifyModal'
 
 interface Tx {
   order_id: string; amount: number; purpose: string
   status: string; utr?: string; created_at: number; paid_time?: number
 }
-interface Props { tx: Tx; index: number }
+// Added onVerified optional callback prop
+interface Props { tx: Tx; index: number; onVerified?: () => void }
 
 function midEllipsis(str: string, maxLen = 14) {
   if (str.length <= maxLen) return str
@@ -22,8 +25,9 @@ function relativeTime(ts: number) {
   return `${Math.floor(diff/86400)}d ago`
 }
 
-export function TransactionRow({ tx, index }: Props) {
+export function TransactionRow({ tx, index, onVerified }: Props) {
   const [open, setOpen] = useState(false)
+  const [showVerify, setShowVerify] = useState(false) // Added state to handle modal opening
 
   return (
     <div
@@ -97,9 +101,31 @@ export function TransactionRow({ tx, index }: Props) {
                 </span>
               </div>
             ))}
+
+            {/* Added "Verify manually with UTR" button directly underneath the properties loop */}
+            {tx.status === 'PENDING' && (
+              <button
+                onClick={(e) => { e.stopPropagation(); setShowVerify(true) }}
+                className="w-full mt-3 py-2.5 rounded-lg text-xs font-syne font-bold transition-all"
+                style={{ background:'rgba(124,58,237,0.1)', border:'1px solid rgba(124,58,237,0.25)', color:'#a78bfa' }}
+              >
+                Verify manually with UTR
+              </button>
+            )}
           </div>
         </div>
       </div>
+
+      {/* Rendered ManualVerifyModal at the bottom layout stack */}
+      <ManualVerifyModal 
+        open={showVerify} 
+        onClose={() => setShowVerify(false)} 
+        onSuccess={() => {
+          setShowVerify(false)
+          onVerified?.()
+        }}
+        orderId={tx.order_id} // Automatically passed down so the modal knows what order it's verifying
+      />
     </div>
   )
 }

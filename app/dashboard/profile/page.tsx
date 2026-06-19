@@ -193,32 +193,33 @@ export default function ProfilePage() {
       </section>
 
       {/* Telegram */}
-      <section className="space-y-3">
-        <p className="text-[11px] font-syne font-semibold tracking-[0.1em] uppercase text-ink-3">
-          Telegram (for payment alerts)
+<section className="space-y-3">
+  <p className="text-[11px] font-syne font-semibold tracking-[0.1em] uppercase text-ink-3">
+    Telegram Alerts
+  </p>
+  <div className="rounded-2xl p-4 flex items-center justify-between"
+    style={{ background:'var(--card)', border:'1px solid var(--bd)' }}>
+    <div className="flex items-center gap-2">
+      {telegramConnected
+        ? <CheckCircle size={18} color="var(--green)" weight="fill" />
+        : <XCircle size={18} color="var(--rose)" weight="fill" />
+      }
+      <div>
+        <p className="text-sm font-manrope text-ink-1">
+          {telegramConnected ? 'Connected' : 'Not connected'}
         </p>
-        <AnimatedInput
-          label="Telegram Username"
-          value={telegram}
-          onChange={e => setTelegram(e.target.value.replace(/^@/, ''))}
-          placeholder="yourusername"
-          icon={<TelegramLogo size={15} />}
-          hint="Used for manual UTR verification alerts on unmatched payments"
-        />
-        <MagneticButton
-          type="button"
-          loading={savingTg}
-          onClick={saveTelegram}
-          className={`w-full h-12 rounded-xl text-sm font-syne font-bold tracking-tight ${
-            savedTg
-              ? 'text-green-400 bg-green-900/30 ring-1 ring-green-500/30'
-              : 'text-white bg-violet-gradient'
-          }`}
-        >
-          {savedTg ? '✓ Telegram saved' : 'Save Telegram'}
-        </MagneticButton>
-      </section>
-
+        <p className="text-xs text-ink-3 font-manrope">
+          Get alerts for unmatched payments
+        </p>
+      </div>
+    </div>
+    <button onClick={connectTelegram}
+      className="px-3 py-1.5 rounded-lg text-xs font-syne font-bold"
+      style={{ background:'var(--surface)', border:'1px solid var(--bd)', color:'var(--ink-2)' }}>
+      {telegramConnected ? 'Reconnect' : 'Connect'}
+    </button>
+  </div>
+</section>
       {/* Sign out */}
       <button
         onClick={handleLogout}

@@ -28,6 +28,10 @@ export const authApi = {
   register: (d: { email:string; password:string; display_name:string }) => api.post('/auth.php?action=register', d),
   login:    (d: { email:string; password:string })                        => api.post('/auth.php?action=login',    d),
 }
+export const verifyApi = {
+  manual: (d: { order_id: string; utr: string }) =>
+    api.post('/manual-verify.php', d),
+}
 export const meApi = {
   get:          ()      => api.get('/me.php'),
   updateName:   (n:string) => api.post('/me.php', { display_name: n }),

@@ -58,7 +58,7 @@ export function TransactionRow({ tx, index, onVerified }: Props) {
               style={{ fontFamily:'var(--font-jbmono)' }}>
               {midEllipsis(tx.order_id)}
             </p>
-            <p className="text-xs text-ink-3 font-manrope truncate"></tx.purpose></p>
+            <p className="text-xs text-ink-3 font-manrope truncate">{tx.purpose}</p>
           </div>
         </div>
 

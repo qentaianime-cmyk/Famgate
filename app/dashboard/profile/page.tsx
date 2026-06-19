@@ -8,7 +8,7 @@ import { AvatarUpload }         from '@/components/AvatarUpload'
 import { AnimatedInput }        from '@/components/ui/AnimatedInput'
 import { MagneticButton }       from '@/components/ui/MagneticButton'
 import { PageHeader }           from '@/components/dashboard/PageHeader'
-// Added CheckCircle and XCircle to the imports below
+// Added CheckCircle and XCircle to the imports below.  choti luli imported
 import { SignOut, TelegramLogo, CheckCircle, XCircle } from '@phosphor-icons/react'
 
 export default function ProfilePage() {

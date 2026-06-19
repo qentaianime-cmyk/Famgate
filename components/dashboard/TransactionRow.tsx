@@ -58,7 +58,7 @@ export function TransactionRow({ tx, index, onVerified }: Props) {
               style={{ fontFamily:'var(--font-jbmono)' }}>
               {midEllipsis(tx.order_id)}
             </p>
-            <p className="text-xs text-ink-3 font-manrope truncate">{tx.purpose}</p>
+            <p className="text-xs text-ink-3 font-manrope truncate"></tx.purpose></p>
           </div>
         </div>
 
@@ -125,7 +125,11 @@ export function TransactionRow({ tx, index, onVerified }: Props) {
           onVerified?.()
         }}
         orderId={tx.order_id} // Automatically passed down so the modal knows what order it's verifying
+        amount={tx.amount}    // <-- FIXED: Added the required amount prop here
       />
     </div>
+  )
+}
+</div>
   )
 }

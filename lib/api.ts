@@ -5,6 +5,10 @@ export const api = axios.create({ baseURL: BASE, headers: { 'Content-Type': 'app
 export const googleAuthApi = {
   getUrl: () => api.get('/google-auth.php'),
 }
+export const ordersApi = {
+  create: (d: { amount: number; purpose: string }) =>
+    api.post('/create-order.php', d),
+}
 api.interceptors.request.use(cfg => {
   if (typeof window !== 'undefined') {
     const t = localStorage.getItem('qash_token')

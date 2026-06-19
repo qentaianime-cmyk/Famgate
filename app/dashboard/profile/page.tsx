@@ -21,6 +21,7 @@ export default function ProfilePage() {
   // Form state
   const [name,      setName]     = useState(displayName ?? '')
   const [telegram,  setTelegram] = useState('')
+  const [telegramConnected, setTelegramConnected] = useState(false)
   const [avatar,    setAvatarLocal] = useState<string | null>(avatarUrl)
   const [email,     setEmail]    = useState('')
   const [memberSince, setMemberSince] = useState('')
@@ -39,6 +40,11 @@ export default function ProfilePage() {
       const d = r.data
       setName(d.display_name ?? '')
       setTelegram(d.telegram_handle ?? '')
+      setTelegramConnected(!!d.telegram_chat_id)
+      const connectTelegram = async () => {
+  const res = await import('@/lib/api').then(({ api }) => api.get('/telegram-connect.php'))
+  window.open(res.data.link, '_blank')
+}
       setEmail(d.email ?? '')
       if (d.avatar_url) setAvatarLocal(d.avatar_url)
       if (d.created_at) {

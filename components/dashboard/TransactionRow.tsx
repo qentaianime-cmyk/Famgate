@@ -1,14 +1,13 @@
 'use client'
 import { useState } from 'react'
 import { StatusBadge } from './StatusBadge'
-// Imported the manual verification modal (adjust this path if it's inside a different folder, like '../modals/ManualVerifyModal')
 import { ManualVerifyModal } from './ManualVerifyModal'
 
 interface Tx {
   order_id: string; amount: number; purpose: string
   status: string; utr?: string; created_at: number; paid_time?: number
 }
-// Added onVerified optional callback prop
+
 interface Props { tx: Tx; index: number; onVerified?: () => void }
 
 function midEllipsis(str: string, maxLen = 14) {
@@ -27,7 +26,7 @@ function relativeTime(ts: number) {
 
 export function TransactionRow({ tx, index, onVerified }: Props) {
   const [open, setOpen] = useState(false)
-  const [showVerify, setShowVerify] = useState(false) // Added state to handle modal opening
+  const [showVerify, setShowVerify] = useState(false)
 
   return (
     <div
@@ -38,13 +37,12 @@ export function TransactionRow({ tx, index, onVerified }: Props) {
         animationDelay: `${index * 50}ms`,
       }}
     >
-      {/* Row */}
+      {/* Row Summary */}
       <button
         onClick={() => setOpen(o => !o)}
         className="w-full flex items-center justify-between p-3.5 text-left"
       >
         <div className="flex items-center gap-3 min-w-0">
-          {/* Left accent bar — draws down when open */}
           <div
             className="w-0.5 rounded-full shrink-0 transition-all duration-300"
             style={{
@@ -76,7 +74,7 @@ export function TransactionRow({ tx, index, onVerified }: Props) {
         </div>
       </button>
 
-      {/* Expandable drawer — CSS grid 0fr→1fr trick */}
+      {/* Expandable drawer */}
       <div
         style={{
           display:'grid',
@@ -102,7 +100,6 @@ export function TransactionRow({ tx, index, onVerified }: Props) {
               </div>
             ))}
 
-            {/* Added "Verify manually with UTR" button directly underneath the properties loop */}
             {tx.status === 'PENDING' && (
               <button
                 onClick={(e) => { e.stopPropagation(); setShowVerify(true) }}
@@ -116,7 +113,7 @@ export function TransactionRow({ tx, index, onVerified }: Props) {
         </div>
       </div>
 
-      {/* Rendered ManualVerifyModal at the bottom layout stack */}
+      {/* Manual Verification Modal */}
       <ManualVerifyModal 
         open={showVerify} 
         onClose={() => setShowVerify(false)} 
@@ -124,12 +121,9 @@ export function TransactionRow({ tx, index, onVerified }: Props) {
           setShowVerify(false)
           onVerified?.()
         }}
-        orderId={tx.order_id} // Automatically passed down so the modal knows what order it's verifying
-        amount={tx.amount}    // <-- FIXED: Added the required amount prop here
+        orderId={tx.order_id}
+        amount={tx.amount}
       />
     </div>
-  )
-}
-</div>
   )
 }

@@ -1,7 +1,7 @@
 'use client'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { House, ArrowsLeftRight, Gear, User } from '@phosphor-icons/react'
+import { House, ArrowsLeftRight, Gear, User, Plus } from '@phosphor-icons/react'
 import { motion } from 'framer-motion'
 import { cn } from '@/lib/utils'
 
@@ -25,7 +25,8 @@ export function BottomNav() {
         paddingBottom:'env(safe-area-inset-bottom, 8px)',
       }}
     >
-      <div className="flex items-center justify-around max-w-lg mx-auto px-2 py-2">
+      {/* Added "relative" to this div class so the floating button centers perfectly inside it */}
+      <div className="flex items-center justify-around max-w-lg mx-auto px-2 py-2 relative">
         {TABS.map(({ href, icon:Icon, label }) => {
           const active = path === href || (href !== '/dashboard' && path.startsWith(href))
           return (
@@ -55,6 +56,18 @@ export function BottomNav() {
             </Link>
           )
         })}
+
+        {/* Floating create-order button is placed right here, after the loop closes */}
+        <Link href="/dashboard/create-order"
+          className="absolute -top-7 left-1/2 -translate-x-1/2 w-14 h-14 rounded-2xl flex items-center justify-center"
+          style={{
+            background: 'linear-gradient(135deg,#7c3aed,#4f46e5)',
+            boxShadow: '0 4px 20px rgba(124,58,237,0.5)',
+            border: '3px solid var(--bg)',
+          }}
+        >
+          <Plus size={22} color="#fff" weight="bold" />
+        </Link> 
       </div>
     </nav>
   )

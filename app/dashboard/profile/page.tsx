@@ -8,7 +8,8 @@ import { AvatarUpload }         from '@/components/AvatarUpload'
 import { AnimatedInput }        from '@/components/ui/AnimatedInput'
 import { MagneticButton }       from '@/components/ui/MagneticButton'
 import { PageHeader }           from '@/components/dashboard/PageHeader'
-import { SignOut, TelegramLogo } from '@phosphor-icons/react'
+// Added CheckCircle and XCircle to the imports below
+import { SignOut, TelegramLogo, CheckCircle, XCircle } from '@phosphor-icons/react'
 
 export default function ProfilePage() {
   const router      = useRouter()
@@ -40,11 +41,7 @@ export default function ProfilePage() {
       const d = r.data
       setName(d.display_name ?? '')
       setTelegram(d.telegram_handle ?? '')
-      setTelegramConnected(!!d.telegram_chat_id)
-      const connectTelegram = async () => {
-  const res = await import('@/lib/api').then(({ api }) => api.get('/telegram-connect.php'))
-  window.open(res.data.link, '_blank')
-}
+      setTelegramConnected(!!d.telegram_chat_id) // Checks if chat ID exists
       setEmail(d.email ?? '')
       if (d.avatar_url) setAvatarLocal(d.avatar_url)
       if (d.created_at) {
@@ -59,7 +56,7 @@ export default function ProfilePage() {
       setName(displayName ?? '')
       setProfileLoaded(true)
     })
-  }, [])
+  }, [displayName])
 
   // Avatar upload
   const handleAvatarChange = async (b64: string) => {
@@ -88,15 +85,12 @@ export default function ProfilePage() {
   }
 
   // Save telegram handle
-  // Save telegram handle
   const saveTelegram = async () => {
     setSavingTg(true)
     try {
-      // Clean the handle — strip @ if user typed it
       const clean = telegram.replace(/^@/, '').trim()
       setTelegram(clean)
 
-      // (meApi as any) bypasses the TypeScript build error cleanly
       await (meApi as any).updateProfile?.({ telegram_handle: clean })
         ?? await import('@/lib/api').then(({ api }) =>
             api.post('/me.php', { 
@@ -112,6 +106,18 @@ export default function ProfilePage() {
       console.error("Failed to save telegram", error)
     } finally {
       setSavingTg(false)
+    }
+  }
+
+  // Connect Telegram redirect action (Moved out of useEffect to component level)
+  const connectTelegram = async () => {
+    try {
+      const res = await import('@/lib/api').then(({ api }) => api.get('/telegram-connect.php'))
+      if (res.data?.link) {
+        window.open(res.data.link, '_blank')
+      }
+    } catch (error) {
+      console.error("Failed to fetch Telegram connection link", error)
     }
   }
 
@@ -198,34 +204,35 @@ export default function ProfilePage() {
         </MagneticButton>
       </section>
 
-      {/* Telegram */}
-<section className="space-y-3">
-  <p className="text-[11px] font-syne font-semibold tracking-[0.1em] uppercase text-ink-3">
-    Telegram Alerts
-  </p>
-  <div className="rounded-2xl p-4 flex items-center justify-between"
-    style={{ background:'var(--card)', border:'1px solid var(--bd)' }}>
-    <div className="flex items-center gap-2">
-      {telegramConnected
-        ? <CheckCircle size={18} color="var(--green)" weight="fill" />
-        : <XCircle size={18} color="var(--rose)" weight="fill" />
-      }
-      <div>
-        <p className="text-sm font-manrope text-ink-1">
-          {telegramConnected ? 'Connected' : 'Not connected'}
+      {/* Telegram Alerts UI Block */}
+      <section className="space-y-3">
+        <p className="text-[11px] font-syne font-semibold tracking-[0.1em] uppercase text-ink-3">
+          Telegram Alerts
         </p>
-        <p className="text-xs text-ink-3 font-manrope">
-          Get alerts for unmatched payments
-        </p>
-      </div>
-    </div>
-    <button onClick={connectTelegram}
-      className="px-3 py-1.5 rounded-lg text-xs font-syne font-bold"
-      style={{ background:'var(--surface)', border:'1px solid var(--bd)', color:'var(--ink-2)' }}>
-      {telegramConnected ? 'Reconnect' : 'Connect'}
-    </button>
-  </div>
-</section>
+        <div className="rounded-2xl p-4 flex items-center justify-between"
+          style={{ background:'var(--card)', border:'1px solid var(--bd)' }}>
+          <div className="flex items-center gap-2">
+            {telegramConnected
+              ? <CheckCircle size={18} color="var(--green)" weight="fill" />
+              : <XCircle size={18} color="var(--rose)" weight="fill" />
+            }
+            <div>
+              <p className="text-sm font-manrope text-ink-1">
+                {telegramConnected ? 'Connected' : 'Not connected'}
+              </p>
+              <p className="text-xs text-ink-3 font-manrope">
+                Get alerts for unmatched payments
+              </p>
+            </div>
+          </div>
+          <button onClick={connectTelegram}
+            className="px-3 py-1.5 rounded-lg text-xs font-syne font-bold"
+            style={{ background:'var(--surface)', border:'1px solid var(--bd)', color:'var(--ink-2)' }}>
+            {telegramConnected ? 'Reconnect' : 'Connect'}
+          </button>
+        </div>
+      </section>
+
       {/* Sign out */}
       <button
         onClick={handleLogout}
